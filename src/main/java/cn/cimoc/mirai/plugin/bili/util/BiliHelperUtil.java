@@ -24,7 +24,7 @@ public class BiliHelperUtil {
     public static int coinBalance(BiliWebUtil webUtil) throws IOException, InterruptedException {
         JSONObject json = JSON.parseObject(webUtil.get(URLConstant.BILI_GET_COIN_BALANCE).body());
         if (json.getInteger("code") != 0) {
-            webUtil.log.appendLog("获取硬币余额失败：%s，使用登录时获取的余额：%.1f" + json.getString("message"), webUtil.userData.money.get());
+            webUtil.log.appendLog("获取硬币余额失败：%s，使用登录时获取的余额：%s" + json.getString("message"), webUtil.userData.money.get().toString());
             return webUtil.userData.money.get().intValue();
         }
         double money = json.getJSONObject("data").getDouble("money");
