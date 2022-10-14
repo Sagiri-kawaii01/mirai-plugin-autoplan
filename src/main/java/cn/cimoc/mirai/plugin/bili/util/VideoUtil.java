@@ -75,24 +75,27 @@ public class VideoUtil {
         return JSON.parseObject(webUtil.get(URLConstant.BILI_VIDEO_VIEW + "?bvid=" + bvid).body()).getJSONObject("data").toJavaObject(Video.class);
     }
 
-    public static void watchVideo(String bvid, BiliWebUtil webUtil) throws IOException, InterruptedException {
+    public static int watchVideo(String bvid, BiliWebUtil webUtil) throws IOException, InterruptedException {
         int playedTime = new Random().nextInt(90) + 1;
         JSONObject json = JSON.parseObject(webUtil.http.post(URLConstant.BILI_VIDEO_HEARTBEAT, "bvid=" + bvid + "&played_time=" + playedTime, HttpUtil.X_WWW_FORM_TYPE).body());
         Video video = getVideo(bvid, webUtil);
         if (json.getInteger("code") != 0) {
             webUtil.log.appendLog("视频: %s播放失败,原因: %s", video.getTitle(), json.getString("message"));
+            return 0;
         } else {
             webUtil.log.appendLog("视频: %s播放成功,已观看到第%s秒", video.getTitle(), playedTime);
+            return 5;
         }
     }
 
-    public static void shareVideo(String bvid, BiliWebUtil webUtil) throws IOException, InterruptedException {
+    public static int shareVideo(String bvid, BiliWebUtil webUtil) throws IOException, InterruptedException {
         JSONObject json = JSON.parseObject(webUtil.http.post(URLConstant.BILI_AV_SHARE, "bvid=" + bvid + "&csrf=" + webUtil.userData.bilijct.get(), HttpUtil.X_WWW_FORM_TYPE).body());
         Video video = getVideo(bvid, webUtil);
         if (0 != json.getInteger("code")) {
             webUtil.log.appendLog("视频分享失败，原因：%s", json.getString("message"));
-            return;
+            return 0;
         }
         webUtil.log.appendLog("视频：%s分享成功", video.getTitle());
+        return 5;
     }
 }

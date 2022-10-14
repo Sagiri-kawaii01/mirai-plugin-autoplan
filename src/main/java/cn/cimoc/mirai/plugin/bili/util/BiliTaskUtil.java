@@ -141,8 +141,7 @@ public class BiliTaskUtil {
         } else {
             if (!bvids.isEmpty()) {
                 try {
-                    VideoUtil.watchVideo(bvids.get(0), webUtil);
-                    return 5;
+                    return VideoUtil.watchVideo(bvids.get(0), webUtil);
                 } catch (Exception e) {
                     webUtil.log.appendLog("视频观看出错：" + e.getMessage());
                 }
@@ -206,8 +205,7 @@ public class BiliTaskUtil {
         } else {
             if (!bvids.isEmpty()) {
                 try {
-                    VideoUtil.shareVideo(bvids.get(0), webUtil);
-                    return 5;
+                    return VideoUtil.shareVideo(bvids.get(0), webUtil);
                 } catch (Exception e) {
                     webUtil.log.appendLog("视频分享出错：" + e.getMessage());
                 }

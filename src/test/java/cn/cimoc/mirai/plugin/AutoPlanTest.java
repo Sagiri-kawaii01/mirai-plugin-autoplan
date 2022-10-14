@@ -3,6 +3,7 @@ package cn.cimoc.mirai.plugin;
 
 import cn.cimoc.mirai.plugin.bili.data.Cards;
 import cn.cimoc.mirai.plugin.bili.data.UserData;
+import cn.cimoc.mirai.plugin.bili.util.BiliHelperUtil;
 import cn.cimoc.mirai.plugin.bili.util.BiliTaskUtil;
 import cn.cimoc.mirai.plugin.bili.util.BiliWebUtil;
 import cn.cimoc.mirai.plugin.bili.util.VideoUtil;
@@ -12,6 +13,7 @@ import cn.cimoc.mirai.plugin.util.LogUtil;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -80,9 +82,10 @@ public class AutoPlanTest {
     }
 
     @Test
-    public void test3() {
+    public void test3() throws IOException, InterruptedException {
 //        BiliTaskUtil.run(webUtil);
-        webUtil.log.appendLog("%.1f", 123.2);
+        BiliHelperUtil.coinBalance(webUtil);
+//        webUtil.log.appendLog("%s", new Double(999.1).toString());
         System.out.println(webUtil.log.getLog());
     }
 
