@@ -1,9 +1,6 @@
 package cn.cimoc.mirai.plugin.util;
 
-import cn.cimoc.mirai.plugin.AutoPlanPlugin;
-import lombok.extern.slf4j.Slf4j;
-import net.mamoe.mirai.console.permission.AbstractPermitteeId;
-import net.mamoe.mirai.utils.MiraiLogger;
+import net.mamoe.mirai.console.command.CommandSender;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -21,7 +18,6 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.time.Duration;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /** HttpUtil
@@ -36,6 +32,8 @@ public class HttpUtil {
     public static final String FORM_DATA_TYPE = "application/form-data";
 
     private String cookie = "";
+
+    private final Map<String, String> headers = new HashMap<>();
 
     private final Duration timeout = Duration.ofSeconds(5);
     private final byte[] lock = new byte[0];
@@ -64,9 +62,13 @@ public class HttpUtil {
         return new HttpUtil();
     }
 
-    public HttpUtil setCookie(String key, String value) {
+    public HttpUtil setCookie(String key, Object value) {
         cookie += key + "=" + value + ";";
         return this;
+    }
+
+    public void header(String k, String v) {
+        headers.put(k, v);
     }
 
     /**
@@ -74,15 +76,36 @@ public class HttpUtil {
      * @param url 地址
      */
     public HttpResponse<String> get(String url) throws IOException, InterruptedException {
-        HttpRequest request = HttpRequest.newBuilder()
-                .header("Content-Type", "application/json")
-                .headers("Cookie", cookie)
-                .version(HttpClient.Version.HTTP_2)
+        HttpRequest.Builder b = HttpRequest.newBuilder()
+                .header("Cookie", cookie)
+                .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36 Edg/106.0.1370.37");
+        if (!headers.isEmpty()) {
+            for (Map.Entry<String, String> header : headers.entrySet()) {
+                b.header(header.getKey(), header.getValue());
+            }
+            // 每个用户的HttpUtil都是独立的，而计划任务中所有请求都是阻塞式，不存在并发，不会有并发安全性问题
+            headers.clear();
+        }
+        HttpRequest request = b.version(HttpClient.Version.HTTP_2)
                 .uri(URI.create(url))
                 .GET()
                 .timeout(timeout)
                 .build();
         return httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+    }
+
+
+
+    public HttpResponse<String> get(String url, Map<String, Object> params) throws IOException, InterruptedException {
+        if (params.isEmpty()) {
+            return get(url);
+        }
+        StringBuilder builder = new StringBuilder(url);
+        builder.append('?');
+        for (Map.Entry<String, Object> entry : params.entrySet()) {
+            builder.append(entry.getKey()).append('=').append(entry.getValue()).append('&');
+        }
+        return get(builder.toString());
     }
 
     /**
@@ -97,16 +120,34 @@ public class HttpUtil {
         return post(url, data, JSON_TYPE);
     }
 
+    public static String postParamsForXWWW(Map<String, Object> params) {
+        StringBuilder builder = new StringBuilder();
+        for (Map.Entry<String, Object> item : params.entrySet()) {
+            builder.append(item.getKey()).append('=').append(item.getValue()).append('&');
+        }
+        return builder.toString();
+    }
+
     /**
      * post请求
      * @param url 地址
      * @param data json字符串
      */
     public HttpResponse<String> post(String url, String data, String type) throws IOException, InterruptedException {
-        HttpRequest request = HttpRequest.newBuilder()
+        HttpRequest.Builder b = HttpRequest.newBuilder()
+                .headers("Referer", "https://www.bilibili.com/")
                 .header("Content-Type", type)
-                .headers("Cookie", cookie)
-                .version(HttpClient.Version.HTTP_2)
+                .header("Cookie", cookie)
+                .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36 Edg/106.0.1370.37");
+        if (!headers.isEmpty()) {
+            for (Map.Entry<String, String> header : headers.entrySet()) {
+                b.header(header.getKey(), header.getValue());
+            }
+
+            // 每个用户的HttpUtil都是独立的，而计划任务中所有请求都是阻塞式，不存在并发，不会有并发安全性问题
+            headers.clear();
+        }
+        HttpRequest request = b.version(HttpClient.Version.HTTP_2)
                 .uri(URI.create(url))
                 .POST(HttpRequest.BodyPublishers.ofString(data, Charset.defaultCharset()))
                 .timeout(timeout)
@@ -121,7 +162,7 @@ public class HttpUtil {
             int from = 0, cur, mid;
             while ((cur = cookie.indexOf(';', from)) != -1) {
                 mid = cookie.indexOf('=', from);
-                if (mid != -1) {
+                if (mid != -1 && mid < cur) {
                     cookieContainer.put(cookie.substring(from, mid), cookie.substring(mid + 1, cur));
                 }
                 from = cur + 2;

@@ -16,8 +16,15 @@ public class UserData extends JavaAutoSavePluginData {
 
     public Value<String> bilijct = value("bili_jct", "");
 
+    public Value<Double> money = value("money", -1.0);
+
+
     public UserData(@NotNull String saveName) {
         super("bili_" + saveName);
+    }
+
+    public UserData(@NotNull Long id) {
+        super("bili_" + id);
     }
 
 }
