@@ -1,4 +1,4 @@
-  # mirai-plugin-autoplan  
+  # [Sagiri-kawaii01/mirai-plugin-autoplan](https://github.com/Sagiri-kawaii01/mirai-plugin-autoplan)
 基于[mamoe/mirai: 高效率 QQ 机器人支持库](https://github.com/mamoe/mirai)编写的自动化签到脚本
 
  <sup>没有未来的未来不是我想要的未来</sup>
