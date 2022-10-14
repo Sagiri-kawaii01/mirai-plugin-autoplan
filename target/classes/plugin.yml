@@ -1,7 +1,0 @@
-id: cn.cimoc.mirai-plugin.autoplan
-version: 0.3.0
-name: autoplan
-author: lgz
-dependencies:
-  - "com.alibaba.fastjson"
-info: 自动签到
