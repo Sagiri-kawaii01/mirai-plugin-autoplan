@@ -7,7 +7,12 @@
 
 b站接口参考自 [wyt1215819315/autoplan](https://github.com/wyt1215819315/autoplan)
 
+## 使用说明
 
+> 命令列表
+
+* /biliLogin 强制重新扫码登录 （保存Cookie）
+* /biliRun 运行计划任务（暂时还没写定时执行，只能手动）
 
 ## 开发计划
 
